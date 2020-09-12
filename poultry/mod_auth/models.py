@@ -4,19 +4,12 @@ from poultry import db, app
 import jwt
 from datetime import datetime, timedelta
 
-# Define a base model for other database tables to inherit
-class Base(db.Model):
-    __abstract__ = True
-
-    id = db.Column(db.Integer, primary_key=True)
-    date_created = db.Column(db.DateTime,  default=db.func.current_timestamp())
-    date_modified = db.Column(db.DateTime,  default=db.func.current_timestamp(),
-                              onupdate=db.func.current_timestamp())
-
 # Define a User model
-class User(Base):
+class User(db.Model):
 
     __tablename__ = 'auth_user'
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    date_created = db.Column(db.DateTime,  default=db.func.current_timestamp())
 
     # User Name
     name = db.Column(db.String(128),  nullable=False)
@@ -25,11 +18,16 @@ class User(Base):
     email = db.Column(db.String(128),  nullable=False,
                       unique=True)
     password = db.Column(db.String(192),  nullable=False)
-    phone = db.Column(db.String(192),  nullable=False)
+    phone = db.Column(db.String(128),  nullable=False)
 
     # Authorisation Data: role & status
-    role = db.Column(db.SmallInteger, nullable=False)
-    status = db.Column(db.SmallInteger, nullable=False)
+    role = db.Column(db.String(128), nullable=False)
+    status = db.Column(db.String(128), nullable=False)
+
+    sheds = db.relationship('Shed',
+                      backref='user',
+                      cascade='all, delete, delete-orphan',
+                      single_parent=True)
 
     # New instance instantiation procedure
     def __init__(self, name, email, password, phone, role, status):
@@ -48,8 +46,8 @@ class User(Base):
         """
         try:
             payload = {
-                'exp': datetime.utcnow() + timedelta(days=0, seconds=5),
-                'iat': datetime.utcnow(),
+                'exp': datetime.now() + timedelta(days=1, seconds=5),
+                'iat': datetime.now(),
                 'sub': user_id
             }
             return jwt.encode(

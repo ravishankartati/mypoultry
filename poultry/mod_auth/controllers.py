@@ -1,6 +1,6 @@
 # Import flask dependencies
-from flask import Blueprint, request, make_response, jsonify, render_template, \
-    flash, g, session, redirect, url_for
+
+from flask import Blueprint, request, make_response, jsonify, g, session
 # Import password / encryption helper tools
 from werkzeug.security import check_password_hash, generate_password_hash
 
@@ -23,13 +23,11 @@ def signup():
     phone = request.json['phone']
     role = request.json['role']
     status = request.json['status']
-    error = None
     user = User.query.filter_by(email=email).first()
     if not user:
         try:
             new_user = User(email=email, phone=phone, name=name, status=status, role=role, password=generate_password_hash(
                 password, method='sha256'))
-            # add the new user to the database
             db.session.add(new_user)
             db.session.commit()
             auth_token = new_user.encode_auth_token(new_user.id)
@@ -38,6 +36,7 @@ def signup():
                 'message': 'Successfully registered.',
                 'auth_token': auth_token.decode()
             }
+           
             return make_response(jsonify(responseObject)), 201
         except Exception as e:
             print(e)
@@ -60,7 +59,6 @@ def signin():
     try:
         email = request.json['email']
         password = request.json['password']
-        error = None
         user = User.query.filter_by(email=email).first()
 
         if user and check_password_hash(user.password, password):
