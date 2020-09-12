@@ -24,15 +24,16 @@ def create():
         user_id = User.decode_auth_token(auth_token)
         if not isinstance(user_id, str):
             try:
+                print(request.json)
                 state = request.json['state']
                 district = request.json['district']
                 village = request.json['village']
-                shed = int(request.json['shed'])
-                shed = Shed.query.filter_by(shed=shed).first()
+                shed_number = int(request.json['shed'])
+                shed = Shed.query.filter_by(shed=shed_number).first()
                 user = User.query.filter_by(id=user_id).first()
                 if not shed:
                     new_shed = Shed(state=state, district=district,
-                                    village=village, shed=shed, user=user)
+                                    village=village, shed=shed_number, user=user)
                     db.session.add(new_shed)
                     db.session.commit()
                     return make_response(jsonify({
