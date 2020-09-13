@@ -6,9 +6,9 @@ from sqlalchemy.sql.schema import PrimaryKeyConstraint
 class Birdstock(db.Model):
     __tablename__ = 'bird_stock'
     # Shed number
+    date_created = db.Column(db.DateTime,  default=db.func.current_timestamp())
     bshed = db.Column(db.Integer, db.ForeignKey(
         'shed_info.shed'), nullable=False)
-    date_created = db.Column(db.DateTime,  default=db.func.current_timestamp())
     age = db.Column(db.Float,  nullable=False)
     btype = db.Column(db.String(128),  nullable=False)
     quantity = db.Column(db.Integer,  nullable=False)

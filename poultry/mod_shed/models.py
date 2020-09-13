@@ -6,6 +6,7 @@ from poultry import db
 class Shed(db.Model):
     __tablename__ = 'shed_info'
     # userid as foreign key
+    date_created = db.Column(db.DateTime,  default=db.func.current_timestamp())
     user_id = db.Column(db.Integer, db.ForeignKey(
         'auth_user.id'), nullable=False)
     # State where shed is located

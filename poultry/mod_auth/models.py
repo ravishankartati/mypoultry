@@ -8,8 +8,8 @@ from datetime import datetime, timedelta
 class User(db.Model):
 
     __tablename__ = 'auth_user'
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     date_created = db.Column(db.DateTime,  default=db.func.current_timestamp())
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
 
     # User Name
     name = db.Column(db.String(128),  nullable=False)
