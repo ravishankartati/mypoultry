@@ -26,11 +26,13 @@ db = SQLAlchemy(app)
 from poultry.mod_auth.controllers import mod_auth as auth_module
 from poultry.mod_shed.controllers import mod_shed as shed_module
 from poultry.mod_bstock.controllers import mod_bstock as bstock_module
+from poultry.mod_bsales.controllers import mod_bsales as bsales_module
 
 # Register blueprint(s)
 app.register_blueprint(auth_module)
 app.register_blueprint(shed_module)
 app.register_blueprint(bstock_module)
+app.register_blueprint(bsales_module)
 
 # Build the database:
 # This will create the database file using SQLAlchemy

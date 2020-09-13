@@ -1,6 +1,5 @@
 
 from poultry import db
-from datetime import datetime
 from sqlalchemy.sql.schema import PrimaryKeyConstraint
 
 
@@ -10,18 +9,15 @@ class Birdstock(db.Model):
     bshed = db.Column(db.Integer, db.ForeignKey(
         'shed_info.shed'), nullable=False)
     date_created = db.Column(db.DateTime,  default=db.func.current_timestamp())
-    # State where shed is located
-    age = db.Column(db.Integer,  nullable=False)
+    age = db.Column(db.Float,  nullable=False)
     btype = db.Column(db.String(128),  nullable=False)
-    # District where shed is located
-    # Village where shed is located
     quantity = db.Column(db.Integer,  nullable=False)
+    bsales = db.relationship('Birdsales', backref='bstock', single_parent=True)    
 
     __table_args__ = (
         PrimaryKeyConstraint('bshed', 'age', 'btype'),
         {},
     )
-    # New instance instantiation procedure
 
     def __init__(self, shed, age, btype, quantity):
         # shed belongs to the relationship backref varuable in shed_info

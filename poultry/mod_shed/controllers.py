@@ -24,7 +24,6 @@ def create():
         user_id = User.decode_auth_token(auth_token)
         if not isinstance(user_id, str):
             try:
-                print(request.json)
                 state = request.json['state']
                 district = request.json['district']
                 village = request.json['village']

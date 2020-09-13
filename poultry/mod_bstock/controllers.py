@@ -24,9 +24,9 @@ def create():
     if auth_token:
         user_id = User.decode_auth_token(auth_token)
         if not isinstance(user_id, str):
-            quantity = int(request.json['quantity'])
+            quantity = float(request.json['quantity'])
             btype = request.json['btype']
-            age = int(request.json['age'])
+            age = float(request.json['age'])
             shed_number = int(request.json['shed'])
             shed = Shed.query.filter_by(shed=shed_number).first()
             bstock = Birdstock.query.filter_by(
@@ -34,7 +34,7 @@ def create():
             if not shed:
                 return make_response(jsonify({
                     'status': 'fail',
-                    'message': 'Shed number does not exists,please create one.',
+                    'message': 'Invalid shed number.',
                 })), 400
             elif not bstock:
                 new_bstock = Birdstock(shed=shed, quantity=quantity,
@@ -46,7 +46,7 @@ def create():
                     'message': 'Successfully bird stock is created.',
                 })), 201
             else:
-                return update(bstock, btype, quantity)
+                return update(bstock, quantity)
 
         return make_response(jsonify({
             'status': 'fail',
@@ -60,10 +60,9 @@ def create():
 
 
 @mod_bstock.route('/update', methods=['POST'])
-def update(bstock, btype, quantity):
+def update(bstock, quantity):
     try:
         bstock.quantity += quantity
-        bstock.btype = btype
         db.session.add(bstock)
         db.session.commit()
         return make_response(jsonify({
