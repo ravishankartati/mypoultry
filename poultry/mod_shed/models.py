@@ -17,6 +17,7 @@ class Shed(db.Model):
     village = db.Column(db.String(128),  nullable=False)
     # Shed number
     shed = db.Column(db.Integer,  primary_key=True)
+    # Relationships
     bstocks = db.relationship('Birdstock', backref='shed', single_parent=True)
 
     # New instance instantiation procedure

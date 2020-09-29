@@ -10,6 +10,9 @@ from poultry.mod_bstock.models import Birdstock
 from poultry.mod_auth.models import User
 from poultry.mod_bsales.models import Birdsales
 
+# Import moduke controllers
+from poultry.mod_bstock.controllers import update as update_bstock
+
 mod_bsales = Blueprint('bsales', __name__, url_prefix='/bsales')
 
 
@@ -30,24 +33,23 @@ def create():
                 btype = request.json['btype']
                 amount = float(request.json['amount'])
                 shed_number = int(request.json['shed'])
-                bstock = Birdstock.query.filter_by(bshed=shed_number).first()
-                bsales = Birdsales.query.filter_by(bshed=shed_number, age=age, btype=btype).first()
-                if not bstock:
+                bstock = Birdstock.query.filter_by(
+                    bshed=shed_number, age=age, btype=btype).first()
+                if not bstock or bstock.quantity < quantity:
                     return make_response(jsonify({
                         'status': 'fail',
                         'message': 'No stock in that shed.',
                     })), 200
-                elif not bsales:
+                else:
                     new_bsales = Birdsales(age=age, quantity=quantity, amount=amount,
                                            btype=btype, bstock=bstock)
                     db.session.add(new_bsales)
                     db.session.commit()
+                    update_bstock(bstock, -quantity)
                     return make_response(jsonify({
                         'status': 'success',
                         'message': 'Successfully bsales created.',
                     })), 201
-                else:
-                    return update(bsales, quantity, amount)
             except Exception as e:
                 print(e)
                 return make_response(jsonify({
@@ -63,23 +65,3 @@ def create():
             'status': 'fail',
             'message': 'Provide a valid auth token.'
         })), 401
-
-
-@mod_bsales.route('/update', methods=['POST'])
-def update(bsales, quantity, amount):
-    try:
-        bsales.quantity += quantity
-        bsales.amount += amount
-        db.session.add(bsales)
-        db.session.commit()
-        return make_response(jsonify({
-            'status': 'success',
-            'message': 'Bird sales successfully updated.',
-        })), 201
-
-    except Exception as e:
-        print(e)
-        return make_response(jsonify({
-            'status': 'fail',
-            'message': 'Bird sales did not update.'
-        })), 400

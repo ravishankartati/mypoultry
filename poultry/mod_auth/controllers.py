@@ -21,12 +21,10 @@ def signup():
     email = request.json['email']
     password = request.json['password']
     phone = request.json['phone']
-    role = request.json['role']
-    status = request.json['status']
     user = User.query.filter_by(email=email).first()
     if not user:
         try:
-            new_user = User(email=email, phone=phone, name=name, status=status, role=role, password=generate_password_hash(
+            new_user = User(email=email, phone=phone, name=name, password=generate_password_hash(
                 password, method='sha256'))
             db.session.add(new_user)
             db.session.commit()

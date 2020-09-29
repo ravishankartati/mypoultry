@@ -24,29 +24,40 @@ def create():
     if auth_token:
         user_id = User.decode_auth_token(auth_token)
         if not isinstance(user_id, str):
-            quantity = float(request.json['quantity'])
-            btype = request.json['btype']
-            age = float(request.json['age'])
-            shed_number = int(request.json['shed'])
-            shed = Shed.query.filter_by(shed=shed_number).first()
-            bstock = Birdstock.query.filter_by(
-                bshed=shed_number, age=age, btype=btype).first()
-            if not shed:
+            try:
+                quantity = float(request.json['quantity'])
+                btype = request.json['btype']
+                age = float(request.json['age'])
+                shed_number = int(request.json['shed'])
+                shed = Shed.query.filter_by(shed=shed_number).first()
+                bstock = Birdstock.query.filter_by(
+                    bshed=shed_number, age=age, btype=btype).first()
+                if not shed:
+                    return make_response(jsonify({
+                        'status': 'fail',
+                        'message': 'Invalid shed number.',
+                    })), 400
+                elif not bstock:
+                    new_bstock = Birdstock(shed=shed, quantity=quantity,
+                                           btype=btype, age=age)
+                    db.session.add(new_bstock)
+                    db.session.commit()
+                    return make_response(jsonify({
+                        'status': 'success',
+                        'message': 'Successfully bird stock is created.',
+                    })), 201
+                else:
+                    update(bstock, quantity)
+                    return make_response(jsonify({
+                        'status': 'success',
+                        'message': 'Bird stock successfully updated.'
+                    })), 201
+            except Exception as e:
+                print(e)
                 return make_response(jsonify({
                     'status': 'fail',
-                    'message': 'Invalid shed number.',
+                    'message': 'Try again db error'
                 })), 400
-            elif not bstock:
-                new_bstock = Birdstock(shed=shed, quantity=quantity,
-                                       btype=btype, age=age)
-                db.session.add(new_bstock)
-                db.session.commit()
-                return make_response(jsonify({
-                    'status': 'success',
-                    'message': 'Successfully bird stock is created.',
-                })), 201
-            else:
-                return update(bstock, quantity)
 
         return make_response(jsonify({
             'status': 'fail',
@@ -59,20 +70,7 @@ def create():
         })), 401
 
 
-@mod_bstock.route('/update', methods=['POST'])
 def update(bstock, quantity):
-    try:
-        bstock.quantity += quantity
-        db.session.add(bstock)
-        db.session.commit()
-        return make_response(jsonify({
-            'status': 'success',
-            'message': 'Bird stock successfully updated.',
-        })), 201
-
-    except Exception as e:
-        print(e)
-        return make_response(jsonify({
-            'status': 'fail',
-            'message': 'Bird stock did not update.'
-        })), 400
+    bstock.quantity += quantity
+    db.session.add(bstock)
+    db.session.commit()

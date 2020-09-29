@@ -12,6 +12,8 @@ class Birdstock(db.Model):
     age = db.Column(db.Float,  nullable=False)
     btype = db.Column(db.String(128),  nullable=False)
     quantity = db.Column(db.Integer,  nullable=False)
+
+    # Relastionships
     bsales = db.relationship('Birdsales', backref='bstock', single_parent=True)    
 
     __table_args__ = (
